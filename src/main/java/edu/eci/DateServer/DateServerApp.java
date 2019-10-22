@@ -1,7 +1,5 @@
 package edu.eci.DateServer;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static spark.Spark.*;
@@ -10,7 +8,7 @@ public class DateServerApp {
 
     public static void main(String[] args) {
         port(getPort());
-        secure("deploy/KeyStoreDateServer.jks", "jQYXDate5App", null, null);
+        secure("deploy/KeyStoreDateServer.jks", "jQYXDate5App", "deploy/truststoreSecureApp.jks", "aACRSecure1App");
         get("/", (req, res) -> "Date Server");
         get("/date", (req, res) -> getDate());
     }
@@ -26,5 +24,16 @@ public class DateServerApp {
             port = Integer.parseInt(System.getenv("PORT"));
         }
         return port;
+    }
+
+    static {
+        //for localhost testing only
+        javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
+                (hostname, sslSession) -> {
+                    if (hostname.equals("localhost")) {
+                        return true;
+                    }
+                    return false;
+                });
     }
 }
